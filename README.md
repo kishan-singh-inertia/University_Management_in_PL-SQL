@@ -16,7 +16,7 @@ CREATE TABLE students (
     enrollment_year NUMBER(4)
 );
 ```
-# DATA
+DATA
 
 ```sql
 INSERT INTO students (first_name, last_name, dob, department, enrollment_year)
@@ -36,7 +36,7 @@ CREATE TABLE faculty (
     department     VARCHAR2(50)
 );
 ```
-# DATA
+DATA
 ```sql
 INSERT INTO faculty (first_name, last_name, department)
 VALUES ('John', 'Doe', 'Computer Science');
@@ -57,7 +57,7 @@ CREATE TABLE courses (
         REFERENCES faculty(faculty_id)
 );
 ```
-# DATA
+DATA
 ```sql
 INSERT INTO courses (course_name, department, credits, faculty_id)
 VALUES ('Database Systems', 'Computer Science', 3, 1);
@@ -78,7 +78,7 @@ CREATE TABLE enrollments (
     CONSTRAINT fk_course FOREIGN KEY (course_id) REFERENCES courses(course_id)
 );
 ```
-# DATA
+DATA
 ```sql
 INSERT INTO enrollments (student_id, course_id, semester)
 VALUES (1, 1, 'Fall');
@@ -99,7 +99,7 @@ CREATE TABLE grades (
     CONSTRAINT fk_enrollment FOREIGN KEY (enrollment_id) REFERENCES enrollments(enrollment_id)
 );
 ```
-# DATA
+DATA
 
 ```sql
 INSERT INTO grades (enrollment_id, grade_letter, grade_points)
@@ -112,7 +112,8 @@ INSERT INTO grades (enrollment_id, grade_letter, grade_points)
 VALUES (4, 'C', 2.0);
 ```
 
-# 1	List each student’s enrolled courses with faculty name.
+---
+# 1. List each student’s enrolled courses with faculty name.
 ```sql
 SELECT s.first_name || ' ' || s.last_name as student,c.course_name,
 f.first_name || ' ' || f.last_name as faculty
@@ -124,7 +125,9 @@ ON  e.course_id=c.course_id
 JOIN faculty f
 ON c.faculty_id = f.faculty_id;
 ```
-# 2	Calculate average GPA per department.
+
+---
+# 2. Calculate average GPA per department.
 ```sql
 SELECT s.department, ROUND(AVG(g.grade_points),2) as AVG_grade from grades g
 JOIN enrollments e  
@@ -133,7 +136,9 @@ JOIN students s
 ON s.student_id = e.student_id
 GROUP BY s.department;
 ```
-# 3	Write a procedure to enroll a student.
+
+---
+# 3. Write a procedure to enroll a student.
 ```sql
 CREATE OR REPLACE PROCEDURE enroll(p_student_id NUMBER, p_course_id NUMBER, p_semester VARCHAR2) AS
 BEGIN
@@ -145,7 +150,9 @@ EXCEPTION
 END;
 /
 ```
-# 4	Write a function to calculate GPA for a student.
+
+---
+# 4. Write a function to calculate GPA for a student.
 ```sql
 CREATE OR REPLACE FUNCTION fn_calculate_gpa(p_student_id NUMBER)
 RETURN NUMBER AS
@@ -163,7 +170,9 @@ EXCEPTION
 END;
 /
 ```
-# 5	Prevent duplicate enrollment for same course & semester.
+
+---
+# 5. Prevent duplicate enrollment for same course & semester.
 ```sql
 CREATE OR REPLACE TRIGGER tr_prv_dups
 BEFORE INSERT ON enrollments
@@ -181,7 +190,9 @@ BEGIN
 END;
 /
 ```
-# 6	Auto-assign grade_points based on grade_letter.
+
+---
+# 6. Auto-assign grade_points based on grade_letter.
 ```sql
 CREATE OR REPLACE TRIGGER tr_auto_grd
 BEFORE INSERT OR UPDATE ON grades
@@ -202,7 +213,9 @@ VALUES(2,'B');
 
 SELECT * FROM grades;
 ```
-# 7	Display all students and their GPA. 
+
+---
+# 7. Display all students and their GPA. 
 ```sql
 DECLARE
     CURSOR c is SELECT student_id,first_name, last_name from STUDENTS;
@@ -215,7 +228,9 @@ BEGIN
 END;
 /
 ```
-# 8	Group enrollment operations in a package. 
+
+---
+# 8. Group enrollment operations in a package. 
 ```sql
 CREATE OR REPLACE PACKAGE pkg_enrollment AS
 PROCEDURE enroll(p_student NUMBER, p_course NUMBER, p_sem VARCHAR2);
@@ -239,7 +254,9 @@ BEGIN
 END;
 END pkg_enrollment;
 ```
-# 9	Handle “student not found” in GPA function.
+
+---
+# 9. Handle “student not found” in GPA function.
 ```sql
 CREATE OR REPLACE FUNCTION fn_calculate_gpa_exc(p_student_id NUMBER)
 RETURN NUMBER AS
@@ -257,7 +274,9 @@ EXCEPTION
 END;
 /
 ```
-# 10 Transfer student to another department.
+
+---
+# 10. Transfer student to another department.
 ```sql
 CREATE OR REPLACE PROCEDURE trandfer_dept(p_student_id NUMBER,p_department VARCHAR2) AS
 BEGIN
@@ -275,7 +294,9 @@ EXCEPTION
 END;
 /
 ```
-# 11 Fetch all grade data for analytics.
+
+---
+# 11. Fetch all grade data for analytics.
 ```sql
 DECLARE
 TYPE t_all_grade IS RECORD (enrollment_id NUMBER,student_id NUMBER,course_id NUMBER,grade_point NUMBER);
@@ -293,7 +314,9 @@ BEGIN
 END;
 /
 ```
-# 12	FORALL	Bulk insert new enrollments	Performance.
+
+---
+# 12. FORALL	Bulk insert new enrollments	Performance.
 ```sql
 DECLARE
     TYPE t_enroll_id IS TABLE OF NUMBER INDEX BY PLS_INTEGER;
@@ -315,7 +338,9 @@ EXCEPTION
 END;
 /
 ```
-# 13 Create view for transcript summary.
+
+---
+# 13. Create view for transcript summary.
 ```sql
 CREATE OR REPLACE VIEW view_transcript AS
 SELECT s.student_id, s.first_name || ' ' || s.last_name AS name, 
@@ -325,7 +350,9 @@ SELECT s.student_id, s.first_name || ' ' || s.last_name AS name,
         JOIN courses c ON c.course_id = e.COURSE_ID
         LEFT JOIN grades g ON g.ENROLLMENT_ID=e.ENROLLMENT_ID;
 ```
-# 14 Create summary of average grade per course.
+
+---
+# 14. Create summary of average grade per course.
 ```sql
 BEGIN
 EXECUTE IMMEDIATE 
@@ -340,7 +367,9 @@ EXCEPTION WHEN OTHERS THEN
 END;
 /
 ```
-# 15 Generate report for any semester.
+
+---
+# 15. Generate report for any semester.
 ```sql
 CREATE OR REPLACE PROCEDURE semester_report(p_semester VARCHAR2) AS 
 TYPE refcur IS REF CURSOR;
@@ -364,7 +393,9 @@ BEGIN
 END;
 /
 ```
-# 16	DBMS_OUTPUT	Print student report. 
+
+---
+# 16. DBMS_OUTPUT Print student report. 
 ```sql
 DECLARE
     CURSOR c IS SELECT s.student_id, s.first_name || ' ' || s.last_name AS name, 
@@ -380,16 +411,21 @@ BEGIN
 END;
 /
 ```
-# 17	Use sequence explicitly for enrollment_id.
+
+---
+# 17. Use sequence explicitly for enrollment_id.
 ```sql
 CREATE SEQUENCE seq_enrollment START WITH 1000 INCREMENT BY 1 NOCACHE NOCYCLE;
 ```
-# 18    Add index on course_id for faster search.
+
+---
+# 18. Add index on course_id for faster search.
 ```sql
 CREATE INDEX idx_enroll_course ON enrollments(course_id);
 CREATE INDEX idx_enroll_student ON enrollments(student_id);
 ```
-# 19    Maintain audit trail for grade updates. 
+---
+# 19. Maintain audit trail for grade updates. 
 ```sql
 CREATE TABLE audit_grade (
     grade_id NUMBER(10),
@@ -412,7 +448,9 @@ BEGIN
 END trg_grade_audit;
 /
 ```
-# 20    JOB Schedule monthly data purge.
+
+---
+# 20. JOB Schedule monthly data purge.
 ```sql
 CREATE OR REPLACE PROCEDURE pr_clean_audit_table AS
 BEGIN
@@ -430,7 +468,9 @@ BEGIN
         start_date => SYSTIMESTAMP,
         repeat_interval => 'FREQ=MONTHLY;BYMONTHDAY=13',
         enabled => TRUE
-```
     );
 END;
 /
+
+```
+---
